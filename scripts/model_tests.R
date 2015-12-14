@@ -78,18 +78,36 @@ cfa_param_test = function(dat, f_labs=c('f1', 'f2')){
   )
 }
 
+# Data generation -------------------------------------------------------------
+gen_data = function(Nobs, nsubs1, nsubs2, ...){
+  start = nsubs1 + 1
+  end = start + nsubs2 - 1
+  C = gen.corrmat(1:nsubs1, start:end, ...)
+  dat = mvrnorm(Nobs, rep(0, nsubs1+nsubs2), C)
+  colnames(dat) = paste0(c(rep('f1', nsubs1), rep('f2', nsubs2)), '_', 1:(nsubs1+nsubs2))
+  dat
+}
+
+
+
 #cfa_boot_test = function(dat, R, f_labs=c('f1', 'f2')){
 #  fit = fit_cfa(dat, f_labs)
 #  bootstrapLavaan(fit, R, FUN = function(mod) group.cor(mod)$est)
 #}
 
-C = isctools::gen.corrmat(1:10, 11:20, .3, .7, .8)
-dat = mvrnorm(400, rep(0, 20), C)
-colnames(dat) = paste0(rep(c('f1', 'f2'), each=10), '_', 1:20)
+#C = isctools::gen.corrmat(1:10, 11:20, .3, .7, .8)
+#dat = mvrnorm(400, rep(0, 20), C)
+#colnames(dat) = paste0(rep(c('f1', 'f2'), each=10), '_', 1:20)
 
-group_items <- function(i_names, f.names){
-  list(f1 = grep(f.names[1], i_names, value=TRUE),
-       f2 = grep(f.names[2], i_names, value=TRUE))
-}
+#group_items <- function(i_names, f.names){
+#  list(f1 = grep(f.names[1], i_names, value=TRUE),
+#       f2 = grep(f.names[2], i_names, value=TRUE))
+#}
+
+# Mantel is equivalent to within vs between contrast --------------------------------
+#set.seed(100)
+#perm_test(btwn_isc, 10000, dat)
+#set.seed(100)
+#perm_test(btwn_mantel, 10000, dat)
 
 
