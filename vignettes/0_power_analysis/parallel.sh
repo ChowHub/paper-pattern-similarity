@@ -1,0 +1,5 @@
+OUTFILE=$1
+PARSFILE=$2
+REPS=$3
+
+Rscript 1_run_power_sim.R $OUTFILE"$PARSFILE""$SGE_TASK_ID" $REPS

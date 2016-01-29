@@ -1,0 +1,20 @@
+if(!interactive()) {
+  args = commandArgs(TRUE)
+  OUTROOT = args[1]
+  nbatches = as.integer(args[2])
+} else {
+  OUTROOT = 'out/pars-'
+  nbatches = 0
+}
+
+pars = expand.grid(Nobs=400, nsubs1=10, nsubs2=c(5, 8, 22), 
+                   lam1=c(.25,.35,.5), lam2=c(.25, .35,.5), rho=c(1))
+trialPars = pars
+
+if (!nbatches) write.csv(trialPars, file=paste0(OUTROOT, nbatches, '.csv'), row.names=FALSE)
+if (nbatches) {
+  batches = split(trialPars, rep(1:batches, length.out=nbatches))
+  for (ii in 1:length(batches)) {
+    write.csv(batches[[ii]], file=paste0(OUTROOT, ii, '.csv'), row.names=FALSE)
+  }
+}
