@@ -1,6 +1,8 @@
 library(isctools)
 library(MASS)
 library(lavaan)
+isctools <- loadNamespace("isctools")
+lavaan <- loadNamespace("lavaan")
 
 fit_cfa = function(dat, f_labs=c('f1', 'f2')){
   groups = group_items(colnames(dat), f_labs)
@@ -80,14 +82,36 @@ cfa_param_test = function(dat, f_labs=c('f1', 'f2')){
 
 # Data generation -------------------------------------------------------------
 gen_data = function(Nobs, nsubs1, nsubs2, ...){
+  pars = unlist(c(as.list(environment()), list(...)))
+  
+  # generate data frame
   start = nsubs1 + 1
   end = start + nsubs2 - 1
   C = gen.corrmat(1:nsubs1, start:end, ...)
-  dat = mvrnorm(Nobs, rep(0, nsubs1+nsubs2), C)
-  colnames(dat) = paste0(c(rep('f1', nsubs1), rep('f2', nsubs2)), '_', 1:(nsubs1+nsubs2))
+  dat = data.frame(mvrnorm(Nobs, rep(0, nsubs1+nsubs2), C))
+  
+  # name columns, store pars as attribute
+  names(dat) = paste0(c(rep('f1', nsubs1), rep('f2', nsubs2)), '_', 1:(nsubs1+nsubs2))
+  attr(dat, 'pars') <- pars
   dat
 }
 
+# Model fitting ---------------------------------------------------------------
+
+fit_nhst <- function(dat){
+  # tests should return a single p-value value
+  data.frame(
+    btwn_isc = tests$perm_test(tests$btwn_isc, Nperms, dat, upper=TRUE),
+    btwn_sub_ttl = tests$perm_test(tests$btwn_sub_ttl, Nperms, dat, upper=TRUE),
+    cfa_param_test = tests$cfa_param_test(dat)
+  )
+}
+
+# Simulation ------------------------------------------------------------------
+sim_power = function(dat, fit, pars=NULL){
+  
+  
+}
 
 
 #cfa_boot_test = function(dat, R, f_labs=c('f1', 'f2')){

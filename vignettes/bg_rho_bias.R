@@ -1,11 +1,13 @@
 #' Demonstrating bias in measuring internal consistency with classic ISC methods
 #' =============================================================================
 # Load necessary libraries / functions
+library(importr)
 library(ggplot2)
 library(grid)
-eq = (function(){source('../scripts/model_formulas.R', local=tmp <- new.env()); tmp})()
+eq = import('../R/model_formulas.R')
 
 # Parameters
+Nsubs = 4:30
 pars = expand.grid(lams1 = .6, lams2 = .3, rho=1, Nsubs = Nsubs)
 
 head(pars)
@@ -38,7 +40,7 @@ p = ggplot(mres, aes(color=group, linetype=comparison, group=variable)) +
   ylab("Item-total correlation") + xlab("Number of Subjects per Group")
 p
 
-ggsave("../figs/sub_total_bias.png", p, width=10, height = 10 / 1.75)
+ggsave("../paper/figs/sub_total_bias.png", p, width=10, height = 10 / 1.75)
 
 
 result
