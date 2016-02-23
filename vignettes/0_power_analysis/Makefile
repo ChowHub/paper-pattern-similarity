@@ -25,6 +25,6 @@ batch:
 	$(QSUB) $(QSUB_PARALLEL) parallel.sh $@ $^ $(N_REPS)
 	$(MAKEFILE)
 
-out/stitched.csv:
+$(TMPDIR)/stitched.csv:
 	Rscript 2_stitch_results.R $(TMPDIR)/pvals- $@
 
