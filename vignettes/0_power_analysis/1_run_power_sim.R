@@ -7,6 +7,7 @@ library(methods)
 library(magrittr)
 library(plyr)
 library(reshape)
+library(doMC)
 
 if (!interactive()) {
   # not in interactive mode, use command line options
@@ -18,8 +19,7 @@ if (!interactive()) {
   pars = read.csv(args[2])
   Nrep = as.integer(args[3])
   # set up parallel
-  if (args[4] == 'parallel'){
-    library(doMC)
+  if (!is.na(args[4]) & args[4] == 'parallel'){
     doMC::registerDoMC(cores=parallel::detectCores()-1)
   }
 } else {
@@ -53,7 +53,7 @@ out = mdply(pars, function(...) {
   row <- data.frame(...)
   replicate(Nrep, sim(pars)) 
   },
-  .parallel=TRUE
+  .parallel=FALSE
 )
 proc.time() - a
 
