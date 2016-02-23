@@ -1,10 +1,12 @@
 library(isctools)
 library(MASS)
 library(lavaan)
+library(boot)
 isctools <- loadNamespace("isctools")
 lavaan <- loadNamespace("lavaan")
 fitLM <- import('./fit_lm.R')
 trans <- import('./transformations.R')
+
 
 fit_cfa = function(dat, f_labs=c('f1', 'f2')){
   groups = group_items(colnames(dat), f_labs)

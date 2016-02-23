@@ -27,7 +27,7 @@ if (!interactive()) {
   # Create trial parameters
   Nrep = 1
   pars = expand.grid(Nobs=400, nsubs1=10, nsubs2=c(5, 8, 22), 
-                     lam1=c(.25,.35,.5), lam2=c(.25, .35,.5), rho=c(1))
+                     lam1=c(.45,.65, .85), lam2=c(.45, .65,.85), rho=c(1))
   pars = subset(pars, lam1 >= lam2)
 }
 
@@ -49,10 +49,8 @@ sim = . %>% do.call(tests$gen_data, .) %>%
   
 # Run simulation --------------------------------------------------------------
 a <- proc.time()
-out = mdply(pars, function(...) {
-  row <- data.frame(...)
-  replicate(Nrep, sim(pars)) 
-  },
+trialPars = pars[rep(rownames(pars), each=Nrep),]
+out = mdply(trialPars, function(...) sim(data.frame(...)),
   .parallel=FALSE
 )
 proc.time() - a
