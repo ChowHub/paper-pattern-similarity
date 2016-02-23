@@ -78,6 +78,11 @@ perm_test = function(f, R, dat, upper=TRUE, retNull=FALSE){
   else mean(abs(null_dist) > abs(f(dat)))
 }
 
+boot_test = function(f, R, dat, retDist=FALSE){
+  bs <- boot(dat, function(data, ii) f(data[ii,]), R)
+  1 - mean(bs$t > 0)
+}
+
 cfa_chisqr_test = function(dat, f_labs=c('f1', 'f2')){
   fit.isc(data.frame(dat), f.names=f_labs)$diff[2,'Pr(>Chisq)']
 }
