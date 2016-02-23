@@ -10,7 +10,7 @@ QSUB_PARALLEL=-t 1-$(BATCHES_TTL)
 	
 all: clean errors_by_approach.html
 
-parallel: clean $(TMPDIR)/pars-$(BATCHES_TTL).csv batch out/stitched.csv
+parallel: clean batch-$(BATCHES_TTL) out/stitched.csv
 
 clean: 
 	rm -rf $(TMPDIR)/*
@@ -27,10 +27,9 @@ $(TMPDIR)/pvals-%.csv: $(TMPDIR)/pars-%.csv
 errors_by_approach.html: $(PVALS_FILE)
 	R -e "library(rmarkdown); rmarkdown::render('errors_by_approach.Rmd', params=list(p_vals='$(PVALS_FILE)'))"
 
-batch:
-	# TODO finish implementing
-	$(QSUB) $(QSUB_PARALLEL) parallel.sh $@ $^ $(N_REPS)
-	#$(MAKEFILE)
+batch-%: $(TMPDIR)/pars-%.csv
+	# parallel will append SGE task id to pval file name
+	$(QSUB) $(QSUB_PARALLEL) parallel.sh $(TMPDIR)/pvals-
 
 $(TMPDIR)/stitched.csv:
 	Rscript 2_stitch_results.R $(TMPDIR)/pvals- $@
