@@ -3,6 +3,8 @@ library(MASS)
 library(lavaan)
 isctools <- loadNamespace("isctools")
 lavaan <- loadNamespace("lavaan")
+fitLM <- import('./fit_lm.R')
+trans <- import('./transformations.R')
 
 fit_cfa = function(dat, f_labs=c('f1', 'f2')){
   groups = group_items(colnames(dat), f_labs)
@@ -55,6 +57,14 @@ btwn_mantel = function(dat, f_labs=c('f1', 'f2')){
   cor(cdat[l_tri], template[l_tri])
 }
 
+btwn_lm = function(dat, f_labs=c('f1', 'f2')){
+  fit = fitLM$fitLM(dat, f_labs)
+  coefs = fitLM$coef.lm.mat(fit)
+  obliq = trans$lm_to_obliq(coefs)
+  1 - obliq[1, 2]    # will be 0 if one factor solution 
+}
+
+
 # NHST ------------------------------------------------------------------------
 perm_test = function(f, R, dat, upper=TRUE, retNull=FALSE){
   null_dist = replicate(R, {
@@ -80,6 +90,7 @@ cfa_param_test = function(dat, f_labs=c('f1', 'f2')){
   )
 }
 
+
 # Data generation -------------------------------------------------------------
 gen_data = function(Nobs, nsubs1, nsubs2, ...){
   pars = unlist(c(as.list(environment()), list(...)))
@@ -95,24 +106,6 @@ gen_data = function(Nobs, nsubs1, nsubs2, ...){
   attr(dat, 'pars') <- pars
   dat
 }
-
-# Model fitting ---------------------------------------------------------------
-
-fit_nhst <- function(dat){
-  # tests should return a single p-value value
-  data.frame(
-    btwn_isc = tests$perm_test(tests$btwn_isc, Nperms, dat, upper=TRUE),
-    btwn_sub_ttl = tests$perm_test(tests$btwn_sub_ttl, Nperms, dat, upper=TRUE),
-    cfa_param_test = tests$cfa_param_test(dat)
-  )
-}
-
-# Simulation ------------------------------------------------------------------
-sim_power = function(dat, fit, pars=NULL){
-  
-  
-}
-
 
 #cfa_boot_test = function(dat, R, f_labs=c('f1', 'f2')){
 #  fit = fit_cfa(dat, f_labs)
