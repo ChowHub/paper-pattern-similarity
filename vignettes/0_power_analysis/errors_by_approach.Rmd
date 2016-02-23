@@ -4,7 +4,7 @@ author: "Michael Chow"
 date: "January 28, 2016"
 output: html_document
 params:
-  p_vals: 'out/pvals.csv'
+  p_vals: 'out/pvals-0.csv'
 ---
 
 ```{r}
@@ -23,7 +23,7 @@ library(ggplot2)
 ggplot(false_pos, aes(lam1, fr, color=variable, group=variable)) + 
   geom_point() +
   geom_line(size=.85) +
-  facet_grid(lam2 ~ .) + coord_cartesian(ylim=c(-.05, 1.05)) +
+  facet_grid(lam2 ~ rho) + coord_cartesian(ylim=c(-.05, 1.05)) +
   theme_bw(base_size=20) + ylab("False Positive Rate") + 
   ggtitle("Effect of Internal Consistency on Between Group Tests")
 ```
