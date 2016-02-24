@@ -1,5 +1,3 @@
 OUTFILE=$1
-PARSFILE=$2
-REPS=$3
 
-Rscript make "$OUTFILE"-"$SGE_TASK_ID".csv
+make "$OUTFILE""$SGE_TASK_ID"".csv"
