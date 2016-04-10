@@ -18,7 +18,7 @@ before_install:
 
 install:
   - ./travis-tool.sh install_github rstudio/rmarkdown
-  - R -e "install.packages('RCurl')"
+  - R -e "install.packages('RCurl', repos='https://cran.rstudio.com')"
 
 script:
   - make test
