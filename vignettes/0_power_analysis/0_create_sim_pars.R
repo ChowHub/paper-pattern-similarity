@@ -19,7 +19,7 @@ trialPars = pars
 # Split into batches
 if (!nbatches) write.csv(trialPars, file=paste0(OUTROOT, nbatches, '.csv'), row.names=FALSE)
 if (nbatches) {
-  batches = split(trialPars, rep(1:batches, length.out=nbatches))
+  batches = split(trialPars, rep(1:nbatches, length.out=nbatches))
   for (ii in 1:length(batches)) {
     write.csv(batches[[ii]], file=paste0(OUTROOT, ii, '.csv'), row.names=FALSE)
   }
