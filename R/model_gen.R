@@ -1,7 +1,6 @@
 library(GetoptLong)
 library(lavaan)
 
-print(search())
 #qq.options(code.pattern = "\\{\\{CODE\\}\\}")
 qq.options(code.pattern = "@\\{CODE\\}")
 
@@ -43,21 +42,42 @@ f_shared <- function(ltr1, n1, ltr2, n2) {
   paste(mod_meas, constraints, sep="\n")
 }
 
-gen_data <- function(type, ulams, n_meas, M_shared, ret_template=FALSE, n_obs=NULL, ...){
+gen_data <- function(type, ulams, n_meas, M_shared, ret_template=FALSE, n_obs=NULL, rand_int=NULL, ...){
   # TODO: if ulams is a list, add method to use different lambdas
   
   # set names for shared matrix
+  if ('list' %in% class(ulams) & is.null(n_meas)) {
+    n_meas <- sapply(ulams, length)
+    # name each lambda it's argument name
+    for (f_name in names(ulams)) 
+      names(ulams[[f_name]]) <- paste0('lam_', f_name, 1:length(ulams[[f_name]]))
+  }
   if (is.null(names(n_meas))) names(n_meas) <- names(ulams)
   if (is.null(dimnames(M_shared))) dimnames(M_shared) <- list(names(ulams), names(ulams))
   
   # create measurement model --------------------------------------------------
-  meas_list <- sapply(
+  meas_list <- lapply(
     1:length(ulams), 
     function(ii, ...) create_lams(names(ulams)[ii], n_meas[ii], ...),
-    same=TRUE)
-  colnames(meas_list) <- names(ulams)
-  mod_uniq <- do.call(isctools::build.model, data.frame(meas_list))$oblique
-  # get all cross names
+    same=!'list' %in% class(ulams))
+  names(meas_list) <- names(ulams)
+  mod_uniq <- do.call(isctools::build.model, meas_list)$oblique
+  
+  # create random intercept ---------------------------------------------------
+  if (!is.null(rand_int)) {
+    all_meas <- unlist(lapply(1:length(ulams), function(ii) 
+      paste0(rep(names(ulams)[ii], n_meas[ii]), 1:n_meas[ii])
+    ))
+
+    mod_int <- paste("int =~", paste0("{{rand_int}}*", all_meas, collapse=" + "),  # measurement
+                     '\n',
+                     paste("int ~~ 0*", names(ulams), collapse='\n'), "\n", # covariances are 0
+                     '\n'
+                     #"int ~~ {{rand_int}}*int", '\n',  # variance of random intercept
+                     #paste(names(ulams), '~~', "1*", names(ulams), collapse='\n')   # set other latent var to 1
+                     
+    )
+  } else mod_int <- ""
   
   # create either bifactor or oblique factor structures -----------------------
   if (type == 'bifactor') {
@@ -74,21 +94,27 @@ gen_data <- function(type, ulams, n_meas, M_shared, ret_template=FALSE, n_obs=NU
   }
   
   # final model to output
-  mod <- paste(mod_uniq, paste(mod_shared, collapse="\n"), sep="\n")
+  mod <- paste(mod_uniq, 
+               mod_int,
+               paste(mod_shared, collapse="\n"),
+               sep="\n")
   
   # fill in template with parameters
   args <- list()
+  # add arguments for shared loadings or factor correlations
   comb_lam <- combn(names(ulams), 2)
   for (ii in 1:ncol(comb_lam)){
-    # add arguments for shared loadings or factor correlations
     col <- comb_lam[,ii]
     shared_lams <- qq(temp, collapse=FALSE)
     loading <- M_shared[col[1], col[2]]
     args[shared_lams] <- if (type == 'bifactor') loading * c(sign(loading), 1) else loading
   }
   # add measure loadings
-  args[paste0("lam_", names(ulams))] <- ulams
-  
+  if ('list' %in% class(ulams)) args[unlist(lapply(ulams, names))] <- unlist(ulams)
+  else args[paste0("lam_", names(ulams))] <- ulams
+  # add random intercept
+  if (!is.null(rand_int)) args['rand_int'] = rand_int
+
   # either return simulated data or model string
   if (!ret_template | !is.null(n_obs)) {
     mod <- qq(mod, envir=args, code.pattern = "\\{\\{CODE\\}\\}")
