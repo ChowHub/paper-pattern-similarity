@@ -1,0 +1,26 @@
+sudo: require
+
+language: c
+services: docker
+
+env:
+  global:
+    - BOOTSTRAP_PANDOC=1
+
+before_install:
+  # docker setup
+  - docker build -t machow/paper-pattern-similarity .
+  - docker run machow/paper-pattern-similarity make test
+  # r-travis setup
+  - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
+  - chmod 755 ./travis-tool.sh
+  - ./travis-tool.sh bootstrap
+
+install:
+  - ./travis-tool.sh install_github rstudio/rmarkdown
+
+script:
+  - make test
+
+r_packages:
+  - RCurl
