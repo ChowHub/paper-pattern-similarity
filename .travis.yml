@@ -1,15 +1,25 @@
 language: r
 sudo: require
 services: docker
-
 before_install:
-  # docker setup
-  - docker build -t machow/paper-pattern-similarity .
-  - docker run machow/paper-pattern-similarity make test
-
+- docker build -t machow/paper-pattern-similarity .
+- docker run machow/paper-pattern-similarity make test
 install:
-  - R -e "install.packages('RCurl', repos='https://cran.rstudio.com')"
-  - R -e "0" --args --bootstrap-packrat
-
+- R -e "install.packages('RCurl', repos='https://cran.rstudio.com')"
+- R -e "0" --args --bootstrap-packrat
 script:
-  - make test
+- make test
+
+# Deploy tagged releases ------------------------------------------------------
+deploy:
+  provider: releases
+  api_key:
+    secure: IILlTRrn5UeLi1AtU/OksXQSIR9qqJ8LvvV4nOh8TTjVgHwJ1Z+xY79fUfUP3C/zwCMyw2LlBskKOKKazdA7lTt8x8doDTHecDzBUTUa89KlywH84GCaPoV35ZXdDWPFPxvm2f3NdaRUAx1z183is+LT0f0JgHSCaDcDfgVNuBRe0JmGrWQFZ5Dhq68guSuiM4ssbfchL5cyHG1gmZ+I3180uDWt+E8ZpYoh8CmHVgrupB1/Fc70bWf9jukwYlvdVRMvCjYdbf2aszdouTO7svJpXftcaMlKo6db/aOZ5HwTnTY5Hpu49sRFmO8lISpyLfvNcUl9TkpgpxmAIdjP3LPSp9vJZq75S3jdo5SjsMn8VMlYOrDEqO/x6EH7uEUVX9ng7HQOKe+x3Xq6Dr7eCrrR4yrBiqUIealzHJnhZT4UUh0vfOPGZFGnCj4T1o6vtSJSm3SlRKwQd6O84TkVwGrJqSWEeEsi8gjf/ENtpBza7kkdGl5Pl3qtGzdwH1bXr0EPBDNwzxLkeNDm+RE9PJqxXeIoLNScdId31fbLgYH5Vkb4CS3Cucbl9lVAcW7SuBRezY2WbTkR3he67wSmSE1AEkSDJYFb96bLbFvEyrlz2okFsMylDb8yD59FnShgfLEEhhf+fQHqd6tluZ01UA4N//ALmyhbxqFLyX6wG6E=
+  on:
+    repo: ChowHub/paper-pattern-similarity
+    branch: dev
+    tags: true
+
+after_deploy:
+  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker push machow/paper-pattern-similarity
