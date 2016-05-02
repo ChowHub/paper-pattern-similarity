@@ -22,4 +22,5 @@ deploy:
 
 after_deploy:
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker push machow/paper-pattern-similarity
+  - docker tag machow/paper-pattern-similarity:latest machow/paper-pattern-similarity:"$GIT_TAG"
+  - docker push machow/paper-pattern-similarity:"$GIT_TAG"
