@@ -66,6 +66,11 @@ Version: 1.3.1
 Hash: b61d34886cf0f4b4fc4e4f52ea249390
 Requires: memoise
 
+Package: curl
+Source: CRAN
+Version: 0.9.7
+Hash: 8a3eaed84ed6a9a188efdeddb231c5de
+
 Package: dichromat
 Source: CRAN
 Version: 2.0-0
@@ -129,12 +134,12 @@ Requires: Rcpp
 
 Package: importr
 Source: github
-Version: 0.1.0
-Hash: 90143260a79d415a93690acef34daef9
+Version: 0.1.1
+Hash: b1110c6c2bf23b8a1519a1cd8072a3a9
 GithubRepo: importr
 GithubUsername: machow
 GithubRef: master
-GithubSha1: 4dc85f2ec6d791ed69c3b180e67988726463ad02
+GithubSha1: bb1570cf4710e981b45a9d8b64ef4b824e7a9fe6
 
 Package: isctools
 Source: github

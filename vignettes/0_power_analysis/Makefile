@@ -15,21 +15,17 @@ parallel: clean batch-$(BATCHES_TTL)
 clean: 
 	rm -rf $(TMP_DIR)/p*
 
-omg:
-	./test.sh
+errors_by_approach.html: $(PVALS_FILE)
+	R -e "library(rmarkdown); rmarkdown::render('errors_by_approach.Rmd', params=list(p_vals='$(PVALS_FILE)'))"
 
 $(TMP_DIR)/pars-%.csv:
 	# creates all parameter files up to %
-	# pass in (1) output file prefix, (2) batch number
+	# pass in (1) output file prefix, (2) total batch number
 	Rscript 0_create_sim_pars.R "$(TMP_DIR)/pars-" $(@:$(TMP_DIR)/pars-%.csv=%)
 
 $(TMP_DIR)/pvals-%.csv: $(TMP_DIR)/pars-%.csv
 	# pass in (1) output file, (2) input file, (3) repetitions
-	qstat
 	Rscript 1_run_power_sim.R $@ $^ $(N_REPS)
-
-errors_by_approach.html: $(PVALS_FILE)
-	R -e "library(rmarkdown); rmarkdown::render('errors_by_approach.Rmd', params=list(p_vals='$(PVALS_FILE)'))"
 
 batch-%: $(TMP_DIR)/pars-%.csv
 	# parallel will append SGE task id to pval file name
