@@ -2,8 +2,8 @@ language: r
 sudo: require
 services: docker
 before_install:
-- docker build -t machow/paper-pattern-similarity .
-- docker run machow/paper-pattern-similarity make test
+- docker build -t container .
+- docker run container make test
 install:
 - R -e "install.packages('RCurl', repos='https://cran.rstudio.com')"
 - R -e "0" --args --bootstrap-packrat
@@ -22,5 +22,5 @@ deploy:
 
 after_deploy:
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker tag machow/paper-pattern-similarity:latest machow/paper-pattern-similarity:"$GIT_TAG"
-  - docker push machow/paper-pattern-similarity:"$GIT_TAG"
+  - docker tag container machow/paper-pattern-similarity:"$TRAVIS_TAG"
+  - docker push machow/paper-pattern-similarity:"$TRAVIS_TAG"
