@@ -35,3 +35,4 @@ batch-%: $(TMP_DIR)/pars-%.csv
 $(TMP_DIR)/stitched.csv:
 	Rscript 2_stitch_results.R $(TMP_DIR)/pvals- $@
 
+.SECONDARY: 
