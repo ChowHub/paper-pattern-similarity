@@ -5,7 +5,6 @@ library(boot)
 isctools <- loadNamespace("isctools")
 lavaan <- loadNamespace("lavaan")
 fitLM <- import('./fit_lm.R')
-trans <- import('./transformations.R')
 
 
 fit_cfa = function(dat, f_labs=c('f1', 'f2')){
@@ -59,10 +58,10 @@ btwn_mantel = function(dat, f_labs=c('f1', 'f2')){
   cor(cdat[l_tri], template[l_tri])
 }
 
-btwn_lm = function(dat, f_labs=c('f1', 'f2')){
+btwn_lm = function(dat, f_labs=c(f1='f1', f2='f2')){
   fit = fitLM$fitLM(dat, f_labs)
   coefs = fitLM$coef.lm.mat(fit)
-  obliq = trans$lm_to_obliq(coefs)
+  obliq = fitLM$lm_to_obliq(coefs)
   1 - obliq[1, 2]    # will be 0 if one factor solution 
 }
 

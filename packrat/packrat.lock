@@ -5,14 +5,14 @@ Repos: CRAN=http://cran.rstudio.com
 
 Package: GetoptLong
 Source: CRAN
-Version: 0.1.1
-Hash: 9f608e3c8362ced890dfdbe5440333a9
+Version: 0.1.3
+Hash: 1a109469e023cf6d21ac39839e51f810
 Requires: GlobalOptions, rjson
 
 Package: GlobalOptions
 Source: CRAN
-Version: 0.0.8
-Hash: 0d1ccb74fae610880703b251d25ed3be
+Version: 0.0.10
+Hash: 188372cc53cd743c621e7847edb6df0d
 
 Package: MASS
 Source: CRAN
@@ -70,6 +70,15 @@ Package: curl
 Source: CRAN
 Version: 0.9.7
 Hash: 8a3eaed84ed6a9a188efdeddb231c5de
+
+Package: curryr
+Source: github
+Version: 0.0.1
+Hash: aa2584a0f5254b69c8b829600a48d708
+GithubRepo: curryr
+GithubUsername: machow
+GithubRef: master
+GithubSha1: b613793aff1b215bf52f429af75728439f2d6697
 
 Package: dichromat
 Source: CRAN
@@ -177,6 +186,16 @@ Source: CRAN
 Version: 0.5-20
 Hash: 010f9b32248af6f35cde13c69b0977b1
 Requires: MASS, mnormt, pbivnorm, quadprog
+
+Package: lavtools
+Source: github
+Version: 0.0.1
+Hash: 535adc5f053574b2f7fd9f06aba0d322
+Requires: GetoptLong, curryr
+GithubRepo: lavtools
+GithubUsername: machow
+GithubRef: master
+GithubSha1: 4171a15e25fee6020582d0bdc72ca190c8b6f194
 
 Package: magrittr
 Source: CRAN

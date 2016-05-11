@@ -6,7 +6,6 @@ gen <- import('../../R/model_gen.R')   # generating functions
 obliq_pars <- import('../obliq_pars.R')      # parameters to test
 # for testing fitting linear model -> obliq
 fitLM <- import('../../R/fit_lm.R')
-trans <- import('../../R/transformations.R')
 
 # Run tests -------------------------------------------------------------------
 # generate lams
@@ -30,8 +29,8 @@ for (row_num in 1:nrow(pars)) {
   })
   
   test_that("lm fit to corrmat -> oblique params", {
-    fit <- fitLM$fitLM(simdat$data, LETTERS[1:3])
-    obliq <- trans$lm_to_obliq(fitLM$coef.lm.mat(fit))
+    fit <- fitLM$fitLM(simdat$data, c(A='A', B='B', C='C'))
+    obliq <- fitLM$lm_to_obliq(fitLM$coef.lm.mat(fit))
     expect_equal(obliq, M_shared)
   })
 }
