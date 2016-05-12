@@ -8,7 +8,7 @@ fitLM <- import('./fit_lm.R')
 
 
 fit_cfa = function(dat, f_labs=c('f1', 'f2')){
-  groups = group_items(colnames(dat), f_labs)
+  groups = isctools:::group_items(colnames(dat), f_labs)
   mod = isctools::build.model(f1 = groups[[1]], f2 = groups[[2]], type=c('oblique', '1f'))
   list(f2 = cfa(mod$oblique, dat, std.ov=TRUE, std.lv=TRUE),
        f1 = cfa(mod$f1, dat, std.ov=TRUE, std.lv=TRUE)
@@ -25,14 +25,19 @@ btwn_isc = function(dat, f_labs=c('f1', 'f2')){
   within - between
 }
 
-btwn_sub_ttl = function(dat, f_labs=c('f1', 'f2')){
+btwn_sub_ttl = function(dat, f_labs=c('f1', 'f2'), scaled=TRUE){
+  if (!scaled) dat <- scale(dat)
   g1 = dat[,grepl(f_labs[1], colnames(dat))]
   g2 = dat[,grepl(f_labs[2], colnames(dat))]
   
   ttl_g1 = rowSums(g1)
   ttl_g2 = rowSums(g2)
   
-  sub_ttl = function(sub, ttl) cor(sub, ttl-sub)
+  sub_ttl = function(sub, ttl){
+    other <- ttl-sub
+    sub %*% other / sqrt(sum(other^2) * (length(other)-1))
+  }
+  
   in_g1 = apply(g1, 2, sub_ttl, ttl=ttl_g1)
   in_g2 = apply(g2, 2, sub_ttl, ttl=ttl_g2)
   within = mean(c(in_g1, in_g2))
@@ -63,6 +68,22 @@ btwn_lm = function(dat, f_labs=c(f1='f1', f2='f2')){
   coefs = fitLM$coef.lm.mat(fit)
   obliq = fitLM$lm_to_obliq(coefs)
   1 - obliq[1, 2]    # will be 0 if one factor solution 
+}
+
+btwn_lm2 = function(dat, f_labs=c(f1='f1', f2='f2')){
+  g1_indx = grep(f_labs[1], colnames(dat))
+  g2_indx = grep(f_labs[2], colnames(dat))
+  
+  C <- cor(dat)
+  
+  lower <- function(cormat) cormat[lower.tri(cormat)]
+  
+  lam_g1 <- sqrt( mean( lower(C[g1_indx,g1_indx]) ) )
+  lam_g2 <- sqrt( mean( lower(C[g2_indx,g2_indx]) ) )
+  
+  btwn <- mean(C[g1_indx, g2_indx])
+  
+  1 - (btwn/(lam_g1*lam_g2))   # will be 0 if one factor solution
 }
 
 

@@ -38,19 +38,18 @@ get_pvals = . %>% {
   c(btwn_isc = tests$perm_test(tests$btwn_isc, R=1000, ., upper=TRUE),
     #btwn_sub_ttl = tests$perm_test(tests$btwn_sub_ttl, R=1000, ., upper=TRUE),
     cfa = tests$cfa_param_test(.),
-    btwn_lm = tests$perm_test(tests$btwn_lm, R=1000, ., upper=TRUE),
-    btwn_lm_boot = tests$boot_test(tests$btwn_lm, R=1000, .)
+    btwn_lm = tests$perm_test(tests$btwn_lm2, R=1000, ., upper=TRUE),
+    btwn_lm_boot = tests$boot_test(tests$btwn_lm2, R=1000, .)
   )
 }
 
 # par data.frame row -> pars w/ p-values
-sim = . %>% do.call(tests$gen_data, .) %>%
-             { c(attr(., 'pars'), get_pvals(.)) }
+sim = . %>% do.call(tests$gen_data, .) %>% get_pvals
   
 # Run simulation --------------------------------------------------------------
 a <- proc.time()
 trialPars = pars[rep(rownames(pars), each=Nrep),]
-out = mdply(trialPars, function(...) sim(data.frame(...)),
+out = adply(trialPars, 1, sim,
   .parallel=FALSE
 )
 proc.time() - a
