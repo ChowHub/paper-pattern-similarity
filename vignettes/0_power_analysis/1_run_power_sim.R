@@ -9,6 +9,8 @@ library(plyr)
 library(reshape)
 library(doMC)
 
+do_parallel <- FALSE
+
 if (!interactive()) {
   # not in interactive mode, use command line options
   # args are
@@ -21,6 +23,7 @@ if (!interactive()) {
   # set up parallel
   if (!is.na(args[4]) & args[4] == 'parallel'){
     doMC::registerDoMC(cores=parallel::detectCores()-1)
+    do_parallel <- TRUE
   }
 } else {
   OUTFILE = 'out/pvals-0.csv'
@@ -50,7 +53,7 @@ sim = . %>% do.call(tests$gen_data, .) %>% get_pvals
 a <- proc.time()
 trialPars = pars[rep(rownames(pars), each=Nrep),]
 out = adply(trialPars, 1, sim,
-  .parallel=FALSE
+  .parallel=do_parallel
 )
 proc.time() - a
 
