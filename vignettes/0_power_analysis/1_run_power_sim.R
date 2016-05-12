@@ -29,8 +29,8 @@ if (!interactive()) {
   OUTFILE = 'out/pvals-0.csv'
   # Create trial parameters
   Nrep = 1
-  pars = expand.grid(Nobs=400, nsubs1=10, nsubs2=c(5, 8, 22), 
-                     lam1=c(.45,.65, .85), lam2=c(.45, .65,.85), rho=c(1))
+  pars = expand.grid(Nobs=400, nsubs1=10, nsubs2=10, 
+                     lam1=c(.85), lam2=c(.45, .65,.85), rho=c(1))
   pars = subset(pars, lam1 >= lam2)
 }
 
