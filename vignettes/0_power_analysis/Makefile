@@ -1,22 +1,28 @@
 TMP_DIR=out
-LOGDIR=out/log
+LOGDIR=$(TMP_DIR)/log
 
-BATCHES_TTL=10
+N_BATCHES=18
 N_REPS=1000
-PVALS_FILE=$(TMP_DIR)/pvals-0.csv
 
-QSUB=-r y -cwd -j y -V -o $(LOGDIR)/
-QSUB_PARALLEL=-t 1-$(BATCHES_TTL)
-	
-all: clean errors_by_approach.html
+QSUB=-sync y -r y -cwd -j y -V -o $(LOGDIR)/
+QSUB_PARALLEL=-t 1-$(N_BATCHES)
 
-parallel: clean batch-$(BATCHES_TTL)
+# Since one parameter csv is created per batch, use a wildcard to find
+# all parameter files created, and derive correspond pvalue file name
+PAR_BATCH=$(notdir $(wildcard $(TMP_DIR)/pars-*))
+PVAL_BATCH=$(addprefix $(TMP_DIR)/, $(PAR_BATCH:pars-%=pvals-%))
+
+# The last parameter file name, invokes rule to make all parameter files
+PAR_FILE:=$(TMP_DIR)/pars-$(N_BATCHES).csv
+
+# Targets ---------------------------------------------------------------------
+all: clean $(PAR_FILE) errors_by_approach.html
+
+parallel: clean batch-$(N_BATCHES) $(TMP_DIR)/stitched.csv
 
 clean: 
-	rm -rf $(TMP_DIR)/p*
-
-errors_by_approach.html: $(PVALS_FILE)
-	R -e "library(rmarkdown); rmarkdown::render('errors_by_approach.Rmd', params=list(p_vals='$(PVALS_FILE)'))"
+	rm -rf $(TMP_DIR)/*
+	mkdir -p $(LOGDIR)
 
 $(TMP_DIR)/pars-%.csv:
 	# creates all parameter files up to %
@@ -27,11 +33,12 @@ $(TMP_DIR)/pvals-%.csv: $(TMP_DIR)/pars-%.csv
 	# pass in (1) output file, (2) input file, (3) repetitions
 	Rscript 1_run_power_sim.R $@ $^ $(N_REPS)
 
+$(TMP_DIR)/stitched.csv: $(PVAL_BATCH)
+	Rscript 2_stitch_results.R $^ $@
+
+errors_by_approach.html: $(TMP_DIR)/stitched.csv
+	R -e "library(rmarkdown); rmarkdown::render('errors_by_approach.Rmd', params=list(p_vals='$^'))"
+
 batch-%: $(TMP_DIR)/pars-%.csv
 	# parallel will append SGE task id to pval file name
 	qsub -N $@ $(QSUB) $(QSUB_PARALLEL) parallel.sh $(TMP_DIR)/pvals-
-	#qsub -N stitch_$@ -hold_jid $@ $(QSUB)
-
-$(TMP_DIR)/stitched.csv:
-	Rscript 2_stitch_results.R $(TMP_DIR)/pvals- $@
-
