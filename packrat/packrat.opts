@@ -6,6 +6,8 @@ vcs.ignore.src: FALSE
 external.packages: RCurl
 local.repos: 
 load.external.packages.on.startup: TRUE
-ignored.packages: devtools
+ignored.packages: 
+    devtools
+    RhpcBLASctl
 quiet.package.installation: TRUE
 snapshot.recommended.packages: FALSE

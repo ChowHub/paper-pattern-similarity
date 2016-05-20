@@ -39,4 +39,4 @@ $(TMP_DIR)/errors_by_approach.html: $(TMP_DIR)/stitched.csv
 
 batch-%: $(PAR_FILE)
 	# parallel will append SGE task id to pval file name
-	qsub -N $@ $(QSUB) $(QSUB_PARALLEL) parallel.sh $(TMP_DIR)/pvals-
+	qsub -N $@ $(QSUB) $(QSUB_PARALLEL) parallel.sh $(TMP_DIR)/pvals- $(PAR_FILE) $(N_REPS)

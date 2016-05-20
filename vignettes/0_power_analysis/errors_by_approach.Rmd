@@ -4,7 +4,7 @@ author: "Michael Chow"
 date: "January 28, 2016"
 output: html_document
 params:
-  p_vals: 'out/pvals-0.csv'
+  p_vals: 'out/stitched.csv'
 ---
 
 ```{r}
@@ -13,18 +13,28 @@ mout <- read.csv(params$p_vals)
 
 # Score False Positives -------------------------------------------------------
 indx_gt = with(mout, lam1 > lam2)
-mout[indx_gt ,c('lam1', 'lam2')] = mout[indx_gt, c('lam2', 'lam1')]
 
 false_pos = ddply(mout, .(Nobs, nsubs1, nsubs2, lam1, lam2, rho, variable), summarize, 
       fr = mean(value < .05, na.rm=TRUE))
 
 # Plotting ------------------------------------------------------------------------
 library(ggplot2)
-ggplot(false_pos, aes(lam1, fr, color=variable, group=variable)) + 
+p <- ggplot(NULL, aes(lam1, fr, color=variable, group=variable)) + 
   geom_point() +
   geom_line(size=.85) +
   facet_grid(lam2 ~ rho) + coord_cartesian(ylim=c(-.05, 1.05)) +
   theme_bw(base_size=20) + ylab("False Positive Rate") + 
   ggtitle("Effect of Internal Consistency on Between Group Tests")
+
+d_ply(false_pos, .(Nobs, nsubs2), function(dat) 
+  print(p %+% dat + ggtitle(paste('Nobs:', dat$Nobs[1], '| nsubs2:', dat$nsubs2[1]))))
+```
+
+Table
+-----
+
+```{r}
+prop_na <- ddply(mout, .(variable, Nobs, lam1, lam2, nsubs2), summarize, prop_na = mean(is.na(value)))
+subset(prop_na, prop_na > .01)
 ```
 
